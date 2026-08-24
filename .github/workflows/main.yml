@@ -1,0 +1,22 @@
+name: Build Mod Jar
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Run Project Generator
+        run: chmod +x build.sh && ./build.sh
+      - name: Compile Jar (Gradle)
+        run: chmod +x gradlew && ./gradlew build
+      - name: Upload Output Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hvh-crystal-addon
+          path: build/libs/*.jar
