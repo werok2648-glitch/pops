@@ -1,8 +1,12 @@
 #!/bin/bash
+# Полная очистка рабочей директории
 rm -rf src gradle .gradle build gradle.properties build.gradle settings.gradle gradlew gradlew.bat fabric.mod.json mixins.json
+
+# Клонирование чистого репозитория шаблона Fabric
 git clone --depth 1 https://github.com .
 rm -rf src/main/java/net/fabricmc/example
 
+# Создание конфигурации сборки под версию 1.21.11
 cat << 'EOF' > gradle.properties
 org.gradle.jvmargs=-Xmx3G
 minecraft_version=1.21.1
@@ -14,8 +18,10 @@ mod_group=com.hvh.addon
 mod_id=hvhaddon
 EOF
 
+# Создание структуры папок исходного кода
 mkdir -p src/main/java/com/hvh/addon/mixin src/main/resources
 
+# Генерация метаданных мода
 cat << 'EOF' > src/main/resources/fabric.mod.json
 {
   "schemaVersion": 1,
@@ -40,6 +46,7 @@ cat << 'EOF' > src/main/resources/fabric.mod.json
 }
 EOF
 
+# Конфигурация Mixin системы
 cat << 'EOF' > src/main/resources/hvhaddon.mixins.json
 {
   "required": true,
@@ -54,6 +61,7 @@ cat << 'EOF' > src/main/resources/hvhaddon.mixins.json
 }
 EOF
 
+# Код Mixin для отрисовки интерфейса HUD под 1.21.11
 cat << 'EOF' > src/main/java/com/hvh/addon/mixin/InGameHudMixin.java
 package com.hvh.addon.mixin;
 
@@ -96,6 +104,7 @@ public class InGameHudMixin {
 }
 EOF
 
+# Главный инициализатор мода и бинд клавиши "C"
 cat << 'EOF' > src/main/java/com/hvh/addon/HvHAddon.java
 package com.hvh.addon;
 
@@ -128,6 +137,7 @@ public class HvHAddon implements ModInitializer {
 }
 EOF
 
+# Асинхронное No-Rotation ядро (KillAura, CrystalAura, AutoTotem, AutoGear, Surround)
 cat << 'EOF' > src/main/java/com/hvh/addon/CrystalAuraHvH.java
 package com.hvh.addon;
 
@@ -218,7 +228,7 @@ public class CrystalAuraHvH {
                 if (sh != null && (sh.slots.size() == 63 || sh.slots.size() == 90)) {
                     for (int i = 0; i < (sh.slots.size() == 63 ? 26 : 53); i++) {
                         ItemStack s = sh.getSlot(i).getStack();
-                        if (!s.isEmpty() && (s.isOf(Items.END_CRYSTAL) || s.isOf(Items.TOTEM_OF_UNDYING))) {
+                        if (!s.isEmpty() && (s.isOf(Items.END_CRY_STAL) || s.isOf(Items.TOTEM_OF_UNDYING))) {
                             click(i, 0, SlotActionType.QUICK_MOVE);
                         }
                     }
@@ -245,10 +255,4 @@ public class CrystalAuraHvH {
                             mc.getNetworkHandler().sendPacket(new PlayerMoveC2SPacket.LookAndOnGround((float) j, 90f, mc.player.isOnGround()));
                             
                             for (int k = 0; k < 4; k++) {
-                                mc.getNetworkHandler().sendPacket(PlayerInteractEntityC2SPacket.attack(enemy, mc.player.isSneaking()));
-                            }
-
-                            mc.execute(() -> {
-                                if (mc.world != null && mc.player != null) {
-                                    mc.world.playSound(mc.player, mc.player.getX(), mc.player.getY(), mc.player.getZ(), 
-SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.PLAYERS, 1f, 1.5f);}});mc.player.swingHand(Hand.MAIN_HAND);break;}}}dead.keySet().removeIf(e -> !mc.world.getEntities().toCollection().contains(e));Hand h = mc.player.getMainHandStack().isOf(Items.END_CRYSTAL) ? Hand.MAIN_HAND :(mc.player.getOffHandStack().isOf(Items.END_CRYSTAL) ? Hand.OFF_HAND : null);if (h == null) return;for (Entity e : mc.world.getEntities()) {if (e instanceof EndCrystalEntity cry) {if (mc.player.squaredDistanceTo(cry) <= 36.0) {for (int i = 0; i < 4; i++) {mc.getNetworkHandler().sendPacket(PlayerInteractEntityC2SPacket.attack(cry, mc.player.isSneaking()));countSec++;}mc.player.swingHand(h);break;}}}BlockPos pPos = mc.player.getBlockPos();int r = 5;BlockPos[] offsets = {pPos.north(), pPos.south(), pPos.east(), pPos.west() };for (BlockPos pos : offsets) {if (mc.world.getBlockState(pos).isAir() && mc.world.getBlockState(pos.down()).isSolid()) {BlockHitResult bhr = new BlockHitResult(new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), Direction.UP, pos, false);mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr, 0));}}for (int x = -r; x <= r; x++) {for (int y = -r; y <= r; y++) {for (int z = -r; z <= r; z++) {BlockPos tPos = pPos.add(x, y, z);if (isValidPlace(tPos)) {BlockHitResult bhr = new BlockHitResult(new Vec3d(tPos.getX() + 0.5, tPos.getY() + 1.0, tPos.getZ() + 0.5), Direction.UP, tPos, false);mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(h, bhr, 0));mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(h, bhr, 0));mc.player.swingHand(h);}}}}} catch (Exception ignored) {} finally {proc.set(false);}});}private static void click(int id, int b, SlotActionType a) {if (mc.getNetworkHandler() == null || mc.player == null) return;mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(mc.player.currentScreenHandler.syncId,mc.player.currentScreenHandler.getRevision(),id, b, a,mc.player.currentScreenHandler.getSlot(id).getStack().copy(),mc.player.getInventory().getCursorStack().copy()));}private static int findTotemSlot() {for (int i = 0; i < 36; i++) {if (mc.player.getInventory().getStack(i).isOf(Items.TOTEM_OF_UNDYING)) {return i < 9 ? i + 36 : i;}}return -1;}private static boolean isValidPlace(BlockPos p) {if (mc.world == null) return false;return (mc.world.getBlockState(p).isOf(net.minecraft.block.Blocks.OBSIDIAN) ||mc.world.getBlockState(p).isOf(net.minecraft.block.Blocks.BEDROCK)) &&mc.world.getBlockState(p.up()).isAir();}}EOFchmod +x gradlew
+mc.getNetworkHandler().sendPacket(PlayerInteractEntityC2SPacket.attack(enemy, mc.player.isSneaking()));}mc.execute(() -> {if (mc.world != null && mc.player != null) {mc.world.playSound(mc.player, mc.player.getX(), mc.player.getY(), mc.player.getZ(),SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.PLAYERS, 1f, 1.5f);}});mc.player.swingHand(Hand.MAIN_HAND);break;}}}dead.keySet().removeIf(e -> !mc.world.getEntities().toCollection().contains(e));Hand h = mc.player.getMainHandStack().isOf(Items.END_CRYSTAL) ? Hand.MAIN_HAND :(mc.player.getOffHandStack().isOf(Items.END_CRYSTAL) ? Hand.OFF_HAND : null);if (h == null) return;for (Entity e : mc.world.getEntities()) {if (e instanceof EndCrystalEntity cry) {if (mc.player.squaredDistanceTo(cry) <= 36.0) {for (int i = 0; i < 4; i++) {mc.getNetworkHandler().sendPacket(PlayerInteractEntityC2SPacket.attack(cry, mc.player.isSneaking()));countSec++;}mc.player.swingHand(h);break;}}}BlockPos pPos = mc.player.getBlockPos();int r = 5;BlockPos[] offsets = {pPos.north(), pPos.south(), pPos.east(), pPos.west() };for (BlockPos pos : offsets) {if (mc.world.getBlockState(pos).isAir() && mc.world.getBlockState(pos.down()).isSolid()) {BlockHitResult bhr = new BlockHitResult(new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), Direction.UP, pos, false);mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr, 0));}}for (int x = -r; x <= r; x++) {for (int y = -r; y <= r; y++) {for (int z = -r; z <= r; z++) {BlockPos tPos = pPos.add(x, y, z);if (isValidPlace(tPos)) {BlockHitResult bhr = new BlockHitResult(new Vec3d(tPos.getX() + 0.5, tPos.getY() + 1.0, tPos.getZ() + 0.5), Direction.UP, tPos, false);mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(h, bhr, 0));mc.getNetworkHandler().sendPacket(new PlayerInteractBlockC2SPacket(h, bhr, 0));mc.player.swingHand(h);}}}}} catch (Exception ignored) {} finally {proc.set(false);}});}private static void click(int id, int b, SlotActionType a) {if (mc.getNetworkHandler() == null || mc.player == null) return;mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(mc.player.currentScreenHandler.syncId,mc.player.currentScreenHandler.getRevision(),id, b, a,mc.player.currentScreenHandler.getSlot(id).getStack().copy(),mc.player.getInventory().getCursorStack().copy()));}private static int findTotemSlot() {for (int i = 0; i < 36; i++) {if (mc.player.getInventory().getStack(i).isOf(Items.TOTEM_OF_UNDYING)) {return i < 9 ? i + 36 : i;}}return -1;}private static boolean isValidPlace(BlockPos p) {if (mc.world == null) return false;return (mc.world.getBlockState(p).isOf(net.minecraft.block.Blocks.OBSIDIAN) ||mc.world.getBlockState(p).isOf(net.minecraft.block.Blocks.BEDROCK)) &&mc.world.getBlockState(p.up()).isAir();}}EOF
