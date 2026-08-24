@@ -1,14 +1,15 @@
 #!/bin/bash
 # Автоматический скрипт сборки Fabric мода (CrystalAuraHvH 1.21.1)
 
-echo "=== Шаг 1: Инициализация шаблона Fabric ==="
-# Скачиваем чистый легковесный шаблон
+echo "=== Шаг 1: Очистка рабочего пространства ==="
+rm -rf src gradle .gradle build gradle.properties build.gradle settings.gradle
+
+echo "=== Шаг 2: Инициализация шаблона Fabric ==="
 git clone --depth 1 https://github.com template
 mv template/* .
 mv template/.* . 2>/dev/null
 rm -rf template src/main/java/net/fabricmc/example
 
-# Настраиваем версии под 1.21.1 (актуальный релиз ветки 1.21)
 cat << 'EOF' > gradle.properties
 org.gradle.jvmargs=-Xmx3G
 minecraft_version=1.21.1
@@ -20,11 +21,11 @@ mod_group=com.hvh.addon
 mod_id=hvhaddon
 EOF
 
-echo "=== Шаг 2: Создание структуры папок ==="
+echo "=== Шаг 3: Создание структуры папок ==="
 mkdir -p src/main/java/com/hvh/addon
 mkdir -p src/main/resources
 
-echo "=== Шаг 3: Запись конфигурации fabric.mod.json ==="
+echo "=== Шаг 4: Запись конфигурации fabric.mod.json ==="
 cat << 'EOF' > src/main/resources/fabric.mod.json
 {
   "schemaVersion": 1,
@@ -47,7 +48,7 @@ cat << 'EOF' > src/main/resources/fabric.mod.json
 }
 EOF
 
-echo "=== Шаг 4: Запись Java-кода (HvHAddon.java) ==="
+echo "=== Шаг 5: Запись Java-кода (HvHAddon.java) ==="
 cat << 'EOF' > src/main/java/com/hvh/addon/HvHAddon.java
 package com.hvh.addon;
 
@@ -80,7 +81,7 @@ public class HvHAddon implements ModInitializer {
 }
 EOF
 
-echo "=== Шаг 5: Запись Java-кода (CrystalAuraHvH.java) ==="
+echo "=== Шаг 6: Запись Java-кода (CrystalAuraHvH.java) ==="
 cat << 'EOF' > src/main/java/com/hvh/addon/CrystalAuraHvH.java
 package com.hvh.addon;
 
@@ -164,31 +165,4 @@ public class CrystalAuraHvH {
 }
 EOF
 
-echo "=== Шаг 6: Настройка GitHub Actions для компиляции ==="
-mkdir -p .github/workflows
-cat << 'EOF' > .github/workflows/build.yml
-name: Build Mod Jar
-on: [push, workflow_dispatch]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Setup Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-      - name: Run Project Generator
-        run: chmod +x build.sh && ./build.sh
-      - name: Compile Jar (Gradle)
-        run: chmod +x gradlew && ./gradlew build
-      - name: Upload Output Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: hvh-crystal-addon
-          path: build/libs/*-shadow*.jar || build/libs/*.jar
-EOF
-
-echo "=== Проект успешно сгенерирован! ==="
+echo "=== Проект успешно перегенерирован! ==="
