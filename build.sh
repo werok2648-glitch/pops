@@ -1,7 +1,7 @@
 #!/bin/bash
-rm -rf src gradle .gradle build gradle.properties build.gradle settings.gradle
+rm -rf src gradle .gradle build gradle.properties build.gradle settings.gradle gradlew gradlew.bat
 git clone --depth 1 https://github.com template
-mv template/* . ; mv template/.* . 2>/dev/null ; rm -rf template src/main/java/net/fabricmc/example
+cp -r template/. . 2>/dev/null ; rm -rf template src/main/java/net/fabricmc/example
 cat << 'EOF' > gradle.properties
 org.gradle.jvmargs=-Xmx3G
 minecraft_version=1.21.1
@@ -163,4 +163,4 @@ public class CrystalAuraHvH {
         });
     }
     private static void click(int id,int b,SlotActionType a){
-if(mc.getNetworkHandler()==null||mc.player==null)return;mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(mc.player.currentScreenHandler.syncId,mc.player.currentScreenHandler.getRevision(),id,b,a,mc.player.currentScreenHandler.getSlot(id).getStack().copy(),mc.player.getInventory().getCursorStack().copy()));}private static int findTotemSlot(){for(int i=0;i<36;i++)if(mc.player.getInventory().getStack(i).isOf(Items.TOTEM_OF_UNDYING))return i<9?i+36:i;return -1;}private static boolean isValidPlace(BlockPos p){if(mc.world==null)return false;return(mc.world.getBlockState(p).isOf(net.minecraft.block.Blocks.OBSIDIAN)||mc.world.getBlockState(p).isOf(net.minecraft.block.Blocks.BEDROCK))&&mc.world.getBlockState(p.up()).isAir();}}EOF
+if(mc.getNetworkHandler()==null||mc.player==null)return;mc.getNetworkHandler().sendPacket(new ClickSlotC2SPacket(mc.player.currentScreenHandler.syncId,mc.player.currentScreenHandler.getRevision(),id,b,a,mc.player.currentScreenHandler.getSlot(id).getStack().copy(),mc.player.getInventory().getCursorStack().copy()));}private static int findTotemSlot(){for(int i=0;i<36;i++)if(mc.player.getInventory().getStack(i).isOf(Items.TOTEM_OF_UNDYING))return i<9?i+36:i;return -1;}private static boolean isValidPlace(BlockPos p){if(mc.world==null)return false;return(mc.world.getBlockState(p).isOf(net.minecraft.block.Blocks.OBSIDIAN)||mc.world.getBlockState(p).isOf(net.minecraft.block.Blocks.BEDROCK))&&mc.world.getBlockState(p.up()).isAir();}}EOFchmod +x gradlew
